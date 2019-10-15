@@ -17,7 +17,7 @@ model = nn.Sequential(nn.Linear(input_size, hidden_sizes[0]),
                       nn.ReLU(),
                       nn.Linear(hidden_sizes[1], output_size),
                       nn.LogSoftmax(dim=1)
-                      )
+                      )w
 
 model.load_state_dict(torch.load(sys.argv[1]))
 model.eval()
