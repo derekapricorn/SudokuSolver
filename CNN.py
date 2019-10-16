@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from time import time
 from torchvision import datasets, transforms
 from torch import nn, optim
+from datetime import date
+today = date.today()
 
 transform = transforms.Compose([
     transforms.Resize((28, 28)),
@@ -53,6 +55,7 @@ class CNN(nn.Module):
 
 
 def train(model, train_loader, test_loader, optimizer, loss_fnc, EPOCH=100):
+    MIN_LOSS = float('inf')
     for epoch in range(EPOCH):
         for step, (x, y) in enumerate(train_loader):
             x.to(device)
@@ -68,16 +71,13 @@ def train(model, train_loader, test_loader, optimizer, loss_fnc, EPOCH=100):
             labels.to(device)
             output_test = model(images)
             loss_test = loss_func(output_test, labels)
+            if loss_test < MIN_LOSS * 0.5:
+                MIN_LOSS = loss_test
+                torch.save(optimizer.state_dict(), "./models/{0}.pth".format(today.strftime("%m-%d-%Y")))
             print("training loss = {0}; test loss = {1}".format(loss.data.numpy(), loss_test.data.numpy()))
-
-
-
-
 
 cnn = CNN()
 cnn.to(device)
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)  # optimize all cnn parameters
 loss_func = nn.CrossEntropyLoss()  # the target label is not one-hotted
 train(cnn, trainloader, testloader, optimizer, loss_func)
-
-
