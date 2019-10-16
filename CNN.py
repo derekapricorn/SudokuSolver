@@ -13,18 +13,23 @@ from torch import nn, optim
 from datetime import date
 today = date.today()
 
-transform = transforms.Compose([
-    transforms.Resize((28, 28)),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,) , (0.5,)),]
-)
-trainset = datasets.MNIST('./data/train', download=True, train=True, transform=transform)
-testset = datasets.MNIST('./data/test', download=True, train=False, transform=transform)
-print("training size = {0}, testing size = {1}".format(trainset.train_data.size(), testset.test_data.size()))
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
-testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
+
 LR=0.001
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+def load_data():
+    transform = transforms.Compose([
+        transforms.Resize((28, 28)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)), ]
+    )
+    trainset = datasets.MNIST('./data/train', download=True, train=True, transform=transform)
+    testset = datasets.MNIST('./data/test', download=True, train=False, transform=transform)
+    print("training size = {0}, testing size = {1}".format(trainset.train_data.size(), testset.test_data.size()))
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
+    return trainloader, testloader
+
 class CNN(nn.Module):
     def __init__(self, ks=5, s=1, p=2):
         super(CNN, self).__init__()
@@ -76,8 +81,10 @@ def train(model, train_loader, test_loader, optimizer, loss_fnc, EPOCH=100):
                 torch.save(optimizer.state_dict(), "./models/{0}.pth".format(today.strftime("%m-%d-%Y")))
             print("training loss = {0}; test loss = {1}".format(loss.data.numpy(), loss_test.data.numpy()))
 
-cnn = CNN()
-cnn.to(device)
-optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)  # optimize all cnn parameters
-loss_func = nn.CrossEntropyLoss()  # the target label is not one-hotted
-train(cnn, trainloader, testloader, optimizer, loss_func)
+if __name__ == '__main__':
+    cnn = CNN()
+    cnn.to(device)
+    optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)  # optimize all cnn parameters
+    loss_func = nn.CrossEntropyLoss()  # the target label is not one-hotted
+    trainloader, testloader = load_data()
+    train(cnn, trainloader, testloader, optimizer, loss_func)
