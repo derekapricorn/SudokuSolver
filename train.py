@@ -52,7 +52,6 @@ for e in range(epochs):
     print("epoch {0} - Training loss : {1}".format(e, running_loss/len(trainloader)))
 print("\nTraining Time (in minutes) =",(time()-time0)/60)
 
-import pdb; pdb.set_trace()
 images, labels = next(iter(testloader))
 img = images[0].view(1, 784)
 with torch.no_grad():
