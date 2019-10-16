@@ -42,7 +42,7 @@ if __name__ == '__main__':
     image = cv2.imread(args.image_file)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     resized = cv2.resize(gray, (28, 28))
-    net_input = Normalize((0.5,) , (0.5,))(ToTensor()(resize))
+    net_input = Normalize((0.5,) , (0.5,))(ToTensor()(resized))
 
     model = CNN()
     model.load_state_dict(torch.load(args.model))
