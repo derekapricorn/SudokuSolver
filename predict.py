@@ -32,13 +32,8 @@ def validate_input(img_in):
     plt.imshow(imutils.opencv2matplotlib(resized))
     plt.show()
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("image_file")
-    parser.add_argument("--model", default="models/10-17-2019.pth")
-    args = parser.parse_args()
-    print("load input image")
-    image = cv2.imread(args.image_file)
+def predict(image_path, model_path="models/10-17-2019.pth"):
+    image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     transform = transforms.Compose([
         transforms.Resize((28, 28)),
@@ -46,14 +41,23 @@ if __name__ == '__main__':
         transforms.Normalize((0.5,), (0.5,)),
     ])
     net_input = transform(Image.fromarray(gray))
-    test_x = torch.unsqueeze(net_input, dim=1).type(torch.FloatTensor) #this is important to expand the dim
+    test_x = torch.unsqueeze(net_input, dim=1).type(torch.FloatTensor)  # this is important to expand the dim
     model = CNN()
-    model.load_state_dict(torch.load(args.model))
+    model.load_state_dict(torch.load(model_path))
     model.eval()
     with torch.no_grad():
         logps = model(test_x)
         ps = torch.exp(logps)
         pred = np.argmax(ps.numpy()[0])
-        print("predicting ", pred)
-        pred_y = torch.max(logps, 1)[1].data.numpy()
-        print("predicting again (for an array): ", pred_y)
+        # print("predicting ", pred)
+        # pred_y = torch.max(logps, 1)[1].data.numpy()
+        # print("predicting again (for an array): ", pred_y)
+        return pred
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("image_file")
+    parser.add_argument("--model", default="models/10-17-2019.pth")
+    args = parser.parse_args()
+    print("load input image")
+    predict(args.image_file, args.model)
