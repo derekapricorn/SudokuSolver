@@ -78,7 +78,7 @@ def train(model, train_loader, test_loader, optimizer, loss_fnc, EPOCH=100):
             loss_test = loss_func(output_test, labels)
             if loss_test < MIN_LOSS * 0.5:
                 MIN_LOSS = loss_test
-                torch.save(optimizer.state_dict(), "./models/{0}.pth".format(today.strftime("%m-%d-%Y")))
+                torch.save(model.state_dict(), "./models/{0}.pth".format(today.strftime("%m-%d-%Y")))
             print("training loss = {0}; test loss = {1}".format(loss.data.numpy(), loss_test.data.numpy()))
 
 if __name__ == '__main__':
