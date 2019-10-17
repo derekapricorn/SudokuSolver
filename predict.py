@@ -35,7 +35,7 @@ def validate_input(img_in):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("image_file")
-    parser.add_argument("--model")
+    parser.add_argument("--model", default="models/10-17-2019.pth")
     args = parser.parse_args()
     print("load input image")
     image = cv2.imread(args.image_file)
