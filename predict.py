@@ -5,6 +5,7 @@ import imutils
 import sys
 import numpy as np
 import argparse
+from PIL import Image
 import torch
 import torchvision
 import matplotlib.pyplot as plt
@@ -31,8 +32,6 @@ def validate_input(img_in):
     plt.imshow(imutils.opencv2matplotlib(resized))
     plt.show()
 
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("image_file")
@@ -41,9 +40,20 @@ if __name__ == '__main__':
     print("load input image")
     image = cv2.imread(args.image_file)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    resized = cv2.resize(gray, (28, 28))
-    net_input = Normalize((0.5,) , (0.5,))(ToTensor()(resized))
+    img = transforms.Resize((28,28))(Image.fromarray(gray))
+    img = transforms.ToTensor()(img)
+    net_input = transforms.Normalize((0.5,), (0.5,))(img)
 
+    # gray = Image.fromarray(gray)
+    # transform = transforms.Compose([
+    #     transforms.ToTensor(),
+    #     transforms.Resize((28, 28)),
+    #     transforms.Normalize((0.5,), (0.5,)),
+    # ])
+    # import pdb; pdb.set_trace()
+    # # resized = transforms.Resize((28, 28))(resized)
+    # # net_input = Normalize((0.5,) , (0.5,))(ToTensor()(resized))
+    # net_input = transform(gray)
     model = CNN()
     model.load_state_dict(torch.load(args.model))
     model.eval()
@@ -52,5 +62,3 @@ if __name__ == '__main__':
         ps = torch.exp(logps)
         pred = np.argmax(ps.numpy()[0])
         print("predicting ", pred)
-
-
