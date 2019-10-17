@@ -40,25 +40,20 @@ if __name__ == '__main__':
     print("load input image")
     image = cv2.imread(args.image_file)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    img = transforms.Resize((28,28))(Image.fromarray(gray))
-    img = transforms.ToTensor()(img)
-    net_input = transforms.Normalize((0.5,), (0.5,))(img)
-
-    # gray = Image.fromarray(gray)
-    # transform = transforms.Compose([
-    #     transforms.ToTensor(),
-    #     transforms.Resize((28, 28)),
-    #     transforms.Normalize((0.5,), (0.5,)),
-    # ])
-    # import pdb; pdb.set_trace()
-    # # resized = transforms.Resize((28, 28))(resized)
-    # # net_input = Normalize((0.5,) , (0.5,))(ToTensor()(resized))
-    # net_input = transform(gray)
+    transform = transforms.Compose([
+        transforms.Resize((28, 28)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
+    ])
+    net_input = transform(Image.fromarray(gray))
+    test_x = torch.unsqueeze(net_input, dim=1).type(torch.FloatTensor) #this is important to expand the dim
     model = CNN()
     model.load_state_dict(torch.load(args.model))
     model.eval()
     with torch.no_grad():
-        logps = model(net_input)
+        logps = model(test_x)
         ps = torch.exp(logps)
         pred = np.argmax(ps.numpy()[0])
         print("predicting ", pred)
+        pred_y = torch.max(logps, 1)[1].data.numpy()
+        print("predicting again (for an array): ", pred_y)
