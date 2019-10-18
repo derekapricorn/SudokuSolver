@@ -11,6 +11,8 @@ from time import time
 from torchvision import datasets, transforms
 from torch import nn, optim
 from datetime import date
+from sklearn.metrics import accuracy_score
+
 today = date.today()
 
 
@@ -58,8 +60,7 @@ class CNN(nn.Module):
         output = self.out(x)
         return output
 
-
-def train(model, train_loader, test_loader, optimizer, loss_fnc, EPOCH=100):
+def train(model, train_loader, test_loader, optimizer, loss_func, EPOCH=100):
     MIN_LOSS = float('inf')
     for epoch in range(EPOCH):
         for step, (x, y) in enumerate(train_loader):
